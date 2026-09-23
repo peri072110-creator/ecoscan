@@ -1687,14 +1687,14 @@
 
     <script>
       /* =========================
-     API
-  ========================= */
+           API
+        ========================= */
 
       const API_URL = "http://localhost:8000";
 
       /* =========================
-     TRANSLATIONS
-  ========================= */
+           TRANSLATIONS
+        ========================= */
 
       const translations = {
         ru: {
@@ -1876,6 +1876,9 @@
             plastic: "Пластик",
             organic: "Органика",
             paper: "Бумага",
+            metal: "Металл",
+            ewaste: "Электронные отходы",
+            hazardous: "Опасные отходы",
 
             removeFood: "Удалите остатки еды",
             emptyContainer: "Опустошите контейнер",
@@ -2070,6 +2073,9 @@
             plastic: "Пластик",
             organic: "Органика",
             paper: "Кагаз",
+            metal: "Металл",
+            ewaste: "Электрондук таштанды",
+            hazardous: "Кооптуу таштанды",
 
             removeFood: "Тамактын калдыктарын алып салыңыз",
             emptyContainer: "Контейнерди бошотуңуз",
@@ -2261,6 +2267,9 @@
             plastic: "Plastic",
             organic: "Organic",
             paper: "Paper",
+            metal: "Metal",
+            ewaste: "E-Waste",
+            hazardous: "Hazardous",
 
             removeFood: "Remove leftover food",
             emptyContainer: "Empty the container",
@@ -2275,10 +2284,9 @@
           },
         },
       };
-
       /* =========================
-     LANGUAGE
-  ========================= */
+           LANGUAGE
+        ========================= */
 
       let currentLang = localStorage.getItem("ecosort-language") || "ru";
 
@@ -2305,8 +2313,8 @@
       }
 
       /* =========================
-     CATEGORIES
-  ========================= */
+           CATEGORIES
+        ========================= */
 
       const CATEGORIES = [
         {
@@ -2346,24 +2354,24 @@
           const data = translations[currentLang].categoriesData[category.id];
 
           return `
-          <div class="cat-card">
+                <div class="cat-card">
 
-            <div class="cat-icon">
-              ${category.icon}
-            </div>
+                  <div class="cat-icon">
+                    ${category.icon}
+                  </div>
 
-            <h4>${data.name}</h4>
+                  <h4>${data.name}</h4>
 
-            <p>${data.desc}</p>
+                  <p>${data.desc}</p>
 
-          </div>
-        `;
+                </div>
+              `;
         }).join("");
       }
 
       /* =========================
-     MOCK DATA
-  ========================= */
+           MOCK DATA
+        ========================= */
 
       const MOCK_SINGLE = {
         success: true,
@@ -2438,12 +2446,88 @@
           throw new Error("Ошибка сервера");
         }
 
-        return await response.json();
+        const data = await response.json();
+
+        const categoryMap = {
+          Plastic: {
+            icon: "🥤",
+            nameKey: "plasticContainer",
+            materialKey: "plastic",
+            destinationKey: "plastic",
+          },
+
+          Paper: {
+            icon: "📄",
+            nameKey: "paperWrapper",
+            materialKey: "paper",
+            destinationKey: "paper",
+          },
+
+          Glass: {
+            icon: "🫙",
+            nameKey: "plasticContainer",
+            materialKey: "plastic",
+            destinationKey: "plastic",
+          },
+
+          Metal: {
+            icon: "🥫",
+            nameKey: "plasticContainer",
+            materialKey: "plastic",
+            destinationKey: "metal",
+          },
+
+          Organic: {
+            icon: "🍎",
+            nameKey: "foodWaste",
+            materialKey: "organic",
+            destinationKey: "organic",
+          },
+
+          "E-Waste": {
+            icon: "🔋",
+            nameKey: "foodWaste",
+            materialKey: "organic",
+            destinationKey: "ewaste",
+          },
+
+          Hazardous: {
+            icon: "⚠️",
+            nameKey: "foodWaste",
+            materialKey: "organic",
+            destinationKey: "hazardous",
+          },
+        };
+
+        const mapped = categoryMap[data.category] || {
+          icon: "♻️",
+          nameKey: "plasticContainer",
+          materialKey: "plastic",
+          destinationKey: "plastic",
+        };
+
+        return {
+          success: true,
+          mixed: false,
+          items: [
+            {
+              icon: mapped.icon,
+              nameKey: mapped.nameKey,
+              materialKey: mapped.materialKey,
+              category: data.category,
+              confidence: data.confidence / 100,
+              recyclable: true,
+              needsCleaning: false,
+              instructionKeys: [],
+              destinationKey: mapped.destinationKey,
+            },
+          ],
+        };
       }
 
       /* =========================
-     LANGUAGE APPLICATION
-  ========================= */
+           LANGUAGE APPLICATION
+        ========================= */
 
       function applyLanguage(lang) {
         currentLang = lang;
@@ -2495,17 +2579,17 @@
 
         document.getElementById("mock-progress").innerHTML =
           `${t("hero.progress")}
-       <div class="bar">
-         <span></span>
-       </div>`;
+             <div class="bar">
+               <span></span>
+             </div>`;
 
         document.getElementById("badge-confidence").innerHTML =
           `${t("hero.confidence")}
-       <small>${t("categoriesData.plastic.name")}</small>`;
+             <small>${t("categoriesData.plastic.name")}</small>`;
 
         document.getElementById("badge-destination").innerHTML =
           `${t("hero.recyclable")}
-       <small>${t("hero.plasticBin")}</small>`;
+             <small>${t("hero.plasticBin")}</small>`;
 
         /* HOW */
 
@@ -2726,8 +2810,8 @@
       }
 
       /* =========================
-     LANGUAGE BUTTONS
-  ========================= */
+           LANGUAGE BUTTONS
+        ========================= */
 
       document
         .querySelectorAll(".language-switcher button")
@@ -2738,8 +2822,8 @@
         });
 
       /* =========================
-     HEADER
-  ========================= */
+           HEADER
+        ========================= */
 
       const header = document.getElementById("site-header");
 
@@ -2748,8 +2832,8 @@
       });
 
       /* =========================
-     MOBILE MENU
-  ========================= */
+           MOBILE MENU
+        ========================= */
 
       const navLinks = document.getElementById("nav-links");
 
@@ -2768,8 +2852,8 @@
       });
 
       /* =========================
-     SCANNER REFERENCES
-  ========================= */
+           SCANNER REFERENCES
+        ========================= */
 
       const dropzone = document.getElementById("dropzone");
 
@@ -2790,8 +2874,8 @@
       };
 
       /* =========================
-     SHOW SCREEN
-  ========================= */
+           SHOW SCREEN
+        ========================= */
 
       function showOnly(element) {
         [dropzone, previewWrap, loadingWrap, errorWrap, resultWrap].forEach(
@@ -2804,8 +2888,8 @@
       }
 
       /* =========================
-     UPLOAD
-  ========================= */
+           UPLOAD
+        ========================= */
 
       document.getElementById("upload-btn").addEventListener("click", () => {
         fileInput.click();
@@ -2847,8 +2931,8 @@
       }
 
       /* =========================
-     DRAG & DROP
-  ========================= */
+           DRAG & DROP
+        ========================= */
 
       const dropArea = document.querySelector(".dropzone");
 
@@ -2875,8 +2959,8 @@
       });
 
       /* =========================
-     CHANGE IMAGE
-  ========================= */
+           CHANGE IMAGE
+        ========================= */
 
       document.getElementById("change-btn").addEventListener("click", () => {
         currentFile.value = null;
@@ -2887,8 +2971,8 @@
       });
 
       /* =========================
-     RETRY
-  ========================= */
+           RETRY
+        ========================= */
 
       document.getElementById("retry-btn").addEventListener("click", () => {
         if (currentFile.value) {
@@ -2899,14 +2983,14 @@
       });
 
       /* =========================
-     SCAN BUTTON
-  ========================= */
+           SCAN BUTTON
+        ========================= */
 
       document.getElementById("scan-btn").addEventListener("click", runScan);
 
       /* =========================
-     DEMO
-  ========================= */
+           DEMO
+        ========================= */
 
       document.getElementById("demo-toggle").addEventListener("click", () => {
         demoMixed = !demoMixed;
@@ -2925,8 +3009,8 @@
       });
 
       /* =========================
-     RUN SCAN
-  ========================= */
+           RUN SCAN
+        ========================= */
 
       async function runScan() {
         showOnly(loadingWrap);
@@ -2967,8 +3051,8 @@
       }
 
       /* =========================
-     RENDER RESULT
-  ========================= */
+           RENDER RESULT
+        ========================= */
 
       function renderResult(result) {
         if (!result) return;
@@ -2986,105 +3070,105 @@
 
           resultWrap.innerHTML = `
 
-        <div class="mixed-header">
+              <div class="mixed-header">
 
-          <h3>
-            ${t("result.mixedTitle")}
-          </h3>
-
-          <p>
-            ${t("result.mixedText", {
-              count: result.items.length,
-            })}
-          </p>
-
-        </div>
-
-
-        <div class="mixed-stats">
-
-          <div class="mixed-stat">
-            <strong>${result.items.length}</strong>
-            <span>${t("result.objects")}</span>
-          </div>
-
-          <div class="mixed-stat">
-            <strong>${materials.size}</strong>
-            <span>${t("result.materials")}</span>
-          </div>
-
-          <div class="mixed-stat">
-            <strong>${cleaningCount}</strong>
-            <span>${t("result.cleaning")}</span>
-          </div>
-
-        </div>
-
-
-        ${result.items
-          .map((item) => {
-            const waste = translations[currentLang].waste;
-
-            const name = waste[item.nameKey];
-
-            const material = waste[item.materialKey];
-
-            const destination = waste[item.destinationKey];
-
-            const cleaning = item.needsCleaning
-              ? t("result.needsCleaning")
-              : t("result.noCleaning");
-
-            return `
-
-            <div class="mixed-item">
-
-              <div class="mixed-item-icon">
-                ${item.icon}
-              </div>
-
-              <div class="mixed-item-main">
-
-                <h4>
-                  ${name}
-                </h4>
+                <h3>
+                  ${t("result.mixedTitle")}
+                </h3>
 
                 <p>
-                  ${material}
-                  ·
-                  ${Math.round(item.confidence * 100)}%
-                  ${t("result.confidence")}
-                  ·
-                  ${cleaning}
+                  ${t("result.mixedText", {
+                    count: result.items.length,
+                  })}
                 </p>
 
               </div>
 
-              <div class="mixed-destination">
-                ${t("result.destination", {
-                  destination,
-                })}
+
+              <div class="mixed-stats">
+
+                <div class="mixed-stat">
+                  <strong>${result.items.length}</strong>
+                  <span>${t("result.objects")}</span>
+                </div>
+
+                <div class="mixed-stat">
+                  <strong>${materials.size}</strong>
+                  <span>${t("result.materials")}</span>
+                </div>
+
+                <div class="mixed-stat">
+                  <strong>${cleaningCount}</strong>
+                  <span>${t("result.cleaning")}</span>
+                </div>
+
               </div>
 
-            </div>
 
-          `;
-          })
-          .join("")}
+              ${result.items
+                .map((item) => {
+                  const waste = translations[currentLang].waste;
+
+                  const name = waste[item.nameKey];
+
+                  const material = waste[item.materialKey];
+
+                  const destination = waste[item.destinationKey];
+
+                  const cleaning = item.needsCleaning
+                    ? t("result.needsCleaning")
+                    : t("result.noCleaning");
+
+                  return `
+
+                  <div class="mixed-item">
+
+                    <div class="mixed-item-icon">
+                      ${item.icon}
+                    </div>
+
+                    <div class="mixed-item-main">
+
+                      <h4>
+                        ${name}
+                      </h4>
+
+                      <p>
+                        ${material}
+                        ·
+                        ${Math.round(item.confidence * 100)}%
+                        ${t("result.confidence")}
+                        ·
+                        ${cleaning}
+                      </p>
+
+                    </div>
+
+                    <div class="mixed-destination">
+                      ${t("result.destination", {
+                        destination,
+                      })}
+                    </div>
+
+                  </div>
+
+                `;
+                })
+                .join("")}
 
 
-        <div class="result-bottom">
+              <div class="result-bottom">
 
-          <button
-            class="btn btn-primary"
-            id="scan-another"
-          >
-            ${t("result.scanAnother")}
-          </button>
+                <button
+                  class="btn btn-primary"
+                  id="scan-another"
+                >
+                  ${t("result.scanAnother")}
+                </button>
 
-        </div>
+              </div>
 
-      `;
+            `;
         } else {
           const item = result.items[0];
 
@@ -3102,93 +3186,93 @@
 
           resultWrap.innerHTML = `
 
-        <div class="result-single">
+              <div class="result-single">
 
-          <div class="result-image">
-            ${item.icon}
-          </div>
-
-
-          <div class="result-content">
-
-            <div class="result-title">
-
-              <div>
-                <h3>
-                  ${name}
-                </h3>
-
-                <p style="
-                  color:var(--muted);
-                  font-size:12px;
-                  margin-top:4px;
-                ">
-                  ${material}
-                </p>
-              </div>
-
-              <span class="confidence">
-                ${Math.round(item.confidence * 100)}%
-                ${t("result.confidence")}
-              </span>
-
-            </div>
+                <div class="result-image">
+                  ${item.icon}
+                </div>
 
 
-            <div class="destination">
+                <div class="result-content">
 
-              <div class="destination-label">
-                ${t("result.putThisIn")}
-              </div>
+                  <div class="result-title">
 
-              <div class="destination-value">
-                ${destination}
-                ${t("result.bin")}
-              </div>
+                    <div>
+                      <h3>
+                        ${name}
+                      </h3>
 
-            </div>
+                      <p style="
+                        color:var(--muted);
+                        font-size:12px;
+                        margin-top:4px;
+                      ">
+                        ${material}
+                      </p>
+                    </div>
 
-
-            <div class="result-status">
-              🟢 ${t("result.recyclable")}
-            </div>
-
-
-            ${
-              item.instructionKeys.length
-                ? `
-                  <div class="instructions">
-
-                    <h4>
-                      ⚠ ${t("result.before")}
-                    </h4>
-
-                    <ul>
-                      ${instructions}
-                    </ul>
+                    <span class="confidence">
+                      ${Math.round(item.confidence * 100)}%
+                      ${t("result.confidence")}
+                    </span>
 
                   </div>
-                `
-                : ""
-            }
 
 
-            <div class="result-bottom">
+                  <div class="destination">
 
-              <button
-                class="btn btn-primary"
-                id="scan-another"
-              >
-                ${t("result.scanAnother")}
-              </button>
+                    <div class="destination-label">
+                      ${t("result.putThisIn")}
+                    </div>
 
-            </div>
+                    <div class="destination-value">
+                      ${destination}
+                      ${t("result.bin")}
+                    </div>
 
-          </div>
+                  </div>
 
-        </div>
 
-      `;
+                  <div class="result-status">
+                    🟢 ${t("result.recyclable")}
+                  </div>
+
+
+                  ${
+                    item.instructionKeys.length
+                      ? `
+                        <div class="instructions">
+
+                          <h4>
+                            ⚠ ${t("result.before")}
+                          </h4>
+
+                          <ul>
+                            ${instructions}
+                          </ul>
+
+                        </div>
+                      `
+                      : ""
+                  }
+
+
+                  <div class="result-bottom">
+
+                    <button
+                      class="btn btn-primary"
+                      id="scan-another"
+                    >
+                      ${t("result.scanAnother")}
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            `;
         }
 
         const scanAnother = document.getElementById("scan-another");
@@ -3207,8 +3291,8 @@
       }
 
       /* =========================
-     START
-  ========================= */
+           START
+        ========================= */
 
       applyLanguage(currentLang);
     </script>
