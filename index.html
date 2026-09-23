@@ -2425,11 +2425,20 @@
           },
         ],
       };
-
       async function scanWaste(image) {
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        const formData = new FormData();
+        formData.append("file", image);
 
-        return demoMixed ? MOCK_MIXED : MOCK_SINGLE;
+        const response = await fetch("http://127.0.0.1:8000/scan", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Ошибка сервера");
+        }
+
+        return await response.json();
       }
 
       /* =========================
